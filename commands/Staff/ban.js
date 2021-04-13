@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 
 const NO_APPEAL_MSG = "You are not allowed to appeal this ban."
-const APPEAL_MSG = "You are allowed to appeal this ban. Appeal At:\nhttps://discord.gg/dxgUeYS3KK"
+const APPEAL_MSG = "You are allowed to appeal this ban. Appeal at:\nhttps://discord.gg/dxgUeYS3KK"
 const NOTICE_MSG = "You have been banned from the Script-Ware server.";
 
 const Command = {

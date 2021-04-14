@@ -1,4 +1,4 @@
-const noticeMsg = 'You have been muted from in [name].'
+const noticeMsg = 'You have been muted in [name].'
 const timeRegex = /[\d+]+[mhdw]/g
 const timeFormat = {
   m: ['Minute', 60000],

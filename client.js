@@ -7,6 +7,7 @@ const secret = require('./secret.json')
 
 Client.prefix = '!'
 Client.commands = {}
+Client.intervals = {}
 Client.giveFeedback = async (channel, command, text, thumbnail, other) => {
   command = command[0].toUpperCase() + command.slice(1)
   const embed = new Discord.MessageEmbed()
@@ -70,3 +71,21 @@ Client.on('message', (msg) => {
 })
 
 Client.login(secret.token)
+
+// The most terrible solution I have come up with, for now. Keeping up with intervals in memory...
+setInterval(async () => {
+  const currentTime = new Date().getTime()
+  const intervals = Client.intervals
+  for (const interval in intervals) {
+    const intervalData = intervals[interval]
+    if (!intervalData.time || currentTime < intervalData.time) continue
+
+    delete intervals[interval]
+    if (intervalData.guild) {
+      const guild = Client.guilds.cache.get(intervalData.guild)
+      if (!guild) continue
+
+      intervalData.run({ guild })
+    }
+  }
+}, 1000)

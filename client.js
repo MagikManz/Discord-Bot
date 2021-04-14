@@ -1,8 +1,8 @@
 const Discord = require('discord.js')
-const recurseWead = require('recursive-readdir')
 
 const Client = new Discord.Client()
 
+const recurseWead = require('recursive-readdir')
 const secret = require('./secret.json')
 
 Client.prefix = '!'

@@ -1,0 +1,18 @@
+{
+    "env": {
+        "commonjs": true,
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "standard"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+        "semi": "error",
+        "camelcase": [2, {"properties": "always"}]
+
+    }
+}

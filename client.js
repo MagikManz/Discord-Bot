@@ -15,7 +15,7 @@ Client.giveFeedback = async (channel, command, text, thumbnail, other) => {
     .setAuthor(`${command} Request`)
     .setDescription(text || 'Successfuly moderated')
     .setThumbnail(thumbnail || 'https://cdn.discordapp.com/emojis/777791562205102110.png?v=1')
-    .setFooter(`Script-Ware Moderation | ${command} Command`)
+    .setFooter(`Random Bot Feedback | ${command} Command`)
     .setTimestamp();
   (await channel.send(embed)).delete({ timeout: 20000 })
 }

@@ -25,13 +25,13 @@ const Command = {
     timeRegex.lastIndex = 0
 
     const time = message[0].match(timeRegex)
-    const caseID = Math.random().toString(36).substring(10)
+    const caseID = Math.random().toString(36).substr(5)
 
     let muteTime = (time && message[0]) || 'Eternity'
     let unmuteAt = 'Unknown'
     let muteTimeSecs
 
-    // The greatest way of handling time!
+    // The greatest way of handling time! (Seg hates me)
     if (time) {
       message.shift()
       let muteMessage = ''
@@ -65,17 +65,6 @@ const Command = {
       } else {
         muteTimeSecs = unmuteAt.getTime()
         unmuteAt = unmuteAt.toGMTString()
-
-        Client.intervals[caseID] = {
-          time: muteTimeSecs,
-          guild: channel.guild.id,
-          run: ({ guild }) => {
-            const gTarget = guild.members.cache.get(target.id)
-            if (gTarget && gTarget.roles.cache.get(mutedRole.id)) {
-              gTarget.roles.remove(mutedRole, 'Unmuted automatically.')
-            }
-          }
-        }
       }
     }
 
@@ -83,6 +72,58 @@ const Command = {
 
     const muteReason = message.join(' ')
 
+    Client.intervals[channel.guild.id][target.id] = {
+      time: muteTimeSecs,
+      guild: channel.guild.id,
+      reason: muteReason,
+      caseid: caseID,
+      run: async ({ guild, member, reason }) => {
+        const gTarget = await (await guild.members.fetch(target.id))?.fetch(true).catch(console.log)
+        if (gTarget && gTarget.roles.cache.get(mutedRole.id)) {
+          console.log('remove role?!')
+          gTarget.roles.remove(mutedRole, `Unmuted by - ${member.user.tag}`).catch(() => {})
+          /* eslint-disable camelcase */
+          const unmuteEmbed = {
+            content: '',
+            embed: {
+              color: 8238467,
+              timestamp: new Date().toString(),
+
+              author: {
+                name: 'Moderation Action',
+                icon_url: 'https://cdn.discordapp.com/attachments/778562386063917086/831646271462834216/shut_up_dino.png'
+              },
+
+              footer: {
+                text: `CASE ID: ${caseID}`
+              },
+
+              fields: [
+                {
+                  name: 'Notice:',
+                  value: `You have been unmuted in ${guild.name}`
+                },
+                {
+                  name: 'Unmuted By:',
+                  value: `<@${member.id}> (${member.id})`
+                },
+                {
+                  name: 'Unmute Reason:',
+                  value: reason
+                },
+                {
+                  name: 'Original mute Reason:',
+                  value: muteReason
+                }
+              ]
+            }
+          }
+          /* eslint-enable camelcase */
+
+          gTarget.send(unmuteEmbed).catch(() => {})
+        }
+      }
+    }
     /* eslint-disable camelcase */
     const muteEmbed = {
       content: '',
@@ -93,6 +134,10 @@ const Command = {
         author: {
           name: 'Moderation Action',
           icon_url: 'https://cdn.discordapp.com/attachments/778562386063917086/831646271462834216/shut_up_dino.png'
+        },
+
+        footer: {
+          text: `CASE ID: ${caseID}`
         },
 
         fields: [

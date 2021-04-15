@@ -78,10 +78,6 @@ Client.on('message', (msg) => {
   command.run({ Client, member, mentions, message, channel })
 })
 
-Client.on('messageUpdate', (_, msg) => {
-
-})
-
 Client.on('messageDelete', (msg) => {
   const {
     guild,

@@ -5,6 +5,8 @@ const Client = new Discord.Client()
 const recurseWead = require('recursive-readdir')
 const secret = require('./secret.json')
 
+const numRegex = /[\d]+/g
+
 Client.prefix = '!'
 Client.commands = {}
 Client.messages = {} // for snipe
@@ -39,6 +41,7 @@ Client.on('ready', () => {
         permissionLevel: permissionLevel,
         info: cmd.description,
         alias: cmd.alias,
+        requiredMember: cmd.mention,
         run: cmd.func
       }
 
@@ -58,7 +61,7 @@ Client.on('ready', () => {
   })
 })
 
-Client.on('message', (msg) => {
+Client.on('message', async (msg) => {
   const {
     guild,
     channel,
@@ -69,11 +72,21 @@ Client.on('message', (msg) => {
 
   const mentions = mentionMembers.array()
   const message = msg.content.substr(Client.prefix.length).split(' ')
-  const command = Client.commands[message[0]?.toLowerCase()]
+  const command = Client.commands[message.shift()?.toLowerCase()]
   if (!command) return
 
-  message.shift()
   if (!member.roles.cache.find((role) => role.name === command.permissionLevel)) return
+
+  numRegex.lastIndex = 0
+  if (message[0] && numRegex.test(message[0])) {
+    numRegex.lastIndex = 0
+    let id = numRegex.exec(message[0])
+
+    id = (id?.[0] && guild.members.cache.get(id[0])) || await guild.members.fetch(message[0]).catch(_ => {})
+    mentions[0] = id || message[0]
+  }
+
+  if (command.requiredMember && !mentions[0]?.id) { msg.reply('You can not use this command on members that are not in **this discord server**.'); return }
 
   command.run({ Client, member, mentions, message, channel })
 })

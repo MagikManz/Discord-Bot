@@ -48,6 +48,12 @@ Client.on('ready', () => {
       }
     })
   })
+
+  // Will be changed later lol (to a database)
+  console.log('Setting up guild caches')
+  Client.guilds.cache.each((guild) => {
+    Client.intervals[guild.id] = {}
+  })
 })
 
 Client.on('message', (msg) => {
@@ -76,16 +82,17 @@ Client.login(secret.token)
 setInterval(async () => {
   const currentTime = new Date().getTime()
   const intervals = Client.intervals
-  for (const interval in intervals) {
-    const intervalData = intervals[interval]
-    if (!intervalData.time || currentTime < intervalData.time) continue
+  for (const guildid in intervals) {
+    for (const interval in intervals[guildid]) {
+      const intervalData = intervals[guildid][interval]
+      if (!intervalData.time || currentTime < intervalData.time) continue
 
-    delete intervals[interval]
-    if (intervalData.guild) {
-      const guild = Client.guilds.cache.get(intervalData.guild)
-      if (!guild) continue
+      const guild = Client.guilds.cache.get(guildid)
+      if (!guild) { delete intervals[guildid]; continue }
 
-      intervalData.run({ guild })
+      console.log('RAN!')
+      intervalData.run({ guild, member: guild.members.cache.get(Client.user.id), reason: 'Automated System Action' })
+      delete intervals[guildid][interval]
     }
   }
 }, 1000)

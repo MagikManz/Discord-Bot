@@ -66,7 +66,7 @@ const Command = {
     let success = true
     await channel.guild.members.ban(target, { reason: banMessage, days: 1 }).catch((e) => {
       success = false
-      if (e.code === 10013) return channel.send(`${member}, ${target} is not a valid ID/user.`)
+      if (e.code === 10013) channel.send(`${member}, ${target} is not a valid ID/user.`)
     })
     if (!success) return
 

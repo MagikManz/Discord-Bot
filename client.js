@@ -7,6 +7,7 @@ const secret = require('./secret.json')
 
 Client.prefix = '!'
 Client.commands = {}
+Client.messages = {} // for snipe
 Client.intervals = {}
 Client.giveFeedback = async (channel, command, text, thumbnail, other) => {
   command = command[0].toUpperCase() + command.slice(1)
@@ -53,6 +54,7 @@ Client.on('ready', () => {
   console.log('Setting up guild caches')
   Client.guilds.cache.each((guild) => {
     Client.intervals[guild.id] = {}
+    Client.messages[guild.id] = {}
   })
 })
 
@@ -74,6 +76,40 @@ Client.on('message', (msg) => {
   if (!member.roles.cache.find((role) => role.name === command.permissionLevel)) return
 
   command.run({ Client, member, mentions, message, channel })
+})
+
+Client.on('messageUpdate', (_, msg) => {
+
+})
+
+Client.on('messageDelete', (msg) => {
+  const {
+    guild,
+    member,
+    content,
+    createdAt
+  } = msg
+  if (!(guild && member && content && createdAt)) return
+
+  Client.messages[guild.id].deleted = { member: member, content: content, createdAt: createdAt }
+  setTimeout(() => {
+    if (Client.messages[guild.id].deleted.content === content) delete Client.messages[guild.id].deleted
+  }, 30000)
+})
+
+Client.on('messageUpdate', (oMsg, msg) => {
+  const {
+    guild,
+    member,
+    content,
+    createdAt
+  } = msg
+  if (!(guild && member && content && createdAt)) return
+
+  Client.messages[guild.id].edited = { member: member, oContent: oMsg.content, content: content, createdAt: createdAt }
+  setTimeout(() => {
+    if (Client.messages[guild.id].edited.content === content) delete Client.messages[guild.id].edited
+  }, 30000)
 })
 
 Client.login(secret.token)

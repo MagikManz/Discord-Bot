@@ -10,6 +10,7 @@ const timeFormat = {
 const Command = {
   alias: [],
   description: 'Mute command',
+  mention: true,
   func: async ({ Client, member, mentions, message, channel }) => {
     if (mentions.length < 1) return
 

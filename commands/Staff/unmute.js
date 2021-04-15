@@ -1,6 +1,7 @@
 const Command = {
   alias: [],
   description: 'Unmute command',
+  mention: true,
   func: async ({ Client, member, mentions, message, channel }) => {
     if (mentions.length < 1) return
 

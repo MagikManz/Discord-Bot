@@ -3,6 +3,7 @@ const noticeMsg = 'You have been kicked from the [name] server.'
 const Command = {
   alias: [],
   description: 'Kick command',
+  mention: true,
   func: async ({ Client, member, mentions, message, channel }) => {
     if (mentions.length < 1) return
 

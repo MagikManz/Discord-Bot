@@ -1,5 +1,5 @@
 const Command = {
-  alias: ['owo', 'helpmedaddy'],
+  alias: ['commands'],
   description: 'Help command',
   func: ({ Client, channel }) => {
     const fields = []

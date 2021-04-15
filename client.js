@@ -1,12 +1,13 @@
 const Discord = require('discord.js')
-const recurseWead = require('recursive-readdir')
 
 const Client = new Discord.Client()
 
+const recurseWead = require('recursive-readdir')
 const secret = require('./secret.json')
 
 Client.prefix = '!'
 Client.commands = {}
+Client.intervals = {}
 Client.giveFeedback = async (channel, command, text, thumbnail, other) => {
   command = command[0].toUpperCase() + command.slice(1)
   const embed = new Discord.MessageEmbed()
@@ -15,7 +16,7 @@ Client.giveFeedback = async (channel, command, text, thumbnail, other) => {
     .setAuthor(`${command} Request`)
     .setDescription(text || 'Successfuly moderated')
     .setThumbnail(thumbnail || 'https://cdn.discordapp.com/emojis/777791562205102110.png?v=1')
-    .setFooter(`Script-Ware Moderation | ${command} Command`)
+    .setFooter(`Random Bot Feedback | ${command} Command`)
     .setTimestamp();
   (await channel.send(embed)).delete({ timeout: 20000 })
 }
@@ -47,6 +48,12 @@ Client.on('ready', () => {
       }
     })
   })
+
+  // Will be changed later lol (to a database)
+  console.log('Setting up guild caches')
+  Client.guilds.cache.each((guild) => {
+    Client.intervals[guild.id] = {}
+  })
 })
 
 Client.on('message', (msg) => {
@@ -70,3 +77,22 @@ Client.on('message', (msg) => {
 })
 
 Client.login(secret.token)
+
+// The most terrible solution I have come up with, for now. Keeping up with intervals in memory...
+setInterval(async () => {
+  const currentTime = new Date().getTime()
+  const intervals = Client.intervals
+  for (const guildid in intervals) {
+    for (const interval in intervals[guildid]) {
+      const intervalData = intervals[guildid][interval]
+      if (!intervalData.time || currentTime < intervalData.time) continue
+
+      const guild = Client.guilds.cache.get(guildid)
+      if (!guild) { delete intervals[guildid]; continue }
+
+      console.log('RAN!')
+      intervalData.run({ guild, member: guild.members.cache.get(Client.user.id), reason: 'Automated System Action' })
+      delete intervals[guildid][interval]
+    }
+  }
+}, 1000)
